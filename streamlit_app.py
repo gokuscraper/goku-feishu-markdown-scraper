@@ -1,3 +1,4 @@
+import base64
 import json
 import os
 import subprocess
@@ -9,6 +10,7 @@ import time
 import io
 import zipfile
 import re
+import mimetypes
 from collections import Counter
 from functools import lru_cache
 from importlib.util import find_spec
@@ -29,6 +31,21 @@ def resolve_asset_path(file_name: str) -> str:
     for p in candidates:
         if p.exists(): return str(p)
     return file_name
+
+
+def image_to_data_uri(path: str) -> str:
+    try:
+        file_path = Path(path)
+        if not file_path.exists():
+            return ""
+        mime_type, _ = mimetypes.guess_type(str(file_path))
+        if not mime_type:
+            mime_type = "image/png"
+        data = file_path.read_bytes()
+        encoded = base64.b64encode(data).decode("utf-8")
+        return f"data:{mime_type};base64,{encoded}"
+    except Exception:
+        return ""
 
 
 # --- 核心工具 (保留：设置管理与文件操作) ---
@@ -318,37 +335,51 @@ def main():
     )
     init_state()
 
-    # ========================================================
-    # 侧边栏 (严格保留，不做任何修改)
-    # ========================================================
-    st.sidebar.markdown("<h2 style='text-align: center; margin-bottom: 0.4rem;'>公众号与交流群</h2>",
-                        unsafe_allow_html=True)
-    st.sidebar.image(resolve_asset_path("gzh.jpg"), caption="扫码加群", use_container_width=True)
-    st.sidebar.markdown(
-        "<div style='text-align: center; margin-top: 0.35rem; color: #4b5563; line-height: 1.6;'>"
-        "让数据不仅被看见，更被读懂。<br>"
-        "悟空爬虫提供从数据采集、多维分析到决策报告的全链路数据服务。"
-        "</div>",
-        unsafe_allow_html=True,
-    )
-    st.sidebar.markdown(
-        "<div style='text-align: center; margin-top: 0.35rem;'><a href='https://gokuscraper.com' target='_blank'>官网：gokuscraper.com</a></div>",
-        unsafe_allow_html=True,
-    )
-    st.sidebar.markdown(
-        "<div style='text-align: center; margin-top: 0.25rem;'><a href='mailto:contact@gokuscraper.com'>Email: contact@gokuscraper.com</a></div>",
-        unsafe_allow_html=True,
-    )
-    # ========================================================
-
     # 标题区
-    title_col1, title_col2 = st.columns([1, 14])
+    title_col1, title_col2, title_col3 = st.columns([1, 10, 5])
     with title_col1:
         st.markdown("<div style='height:10px;'></div>", unsafe_allow_html=True)
         st.image(resolve_asset_path("logo.svg"), width=42)
     with title_col2:
         st.markdown("<h1 style='margin: 0; margin-left: -22px;'>悟空飞书导出Markdowm工具(支持Lark)</h1>", unsafe_allow_html=True)
-    st.caption("使用方法：填链接，点导出，选下载，看分析。")
+    with title_col3:
+        right_col1, right_col2 = st.columns([3, 3])
+        with right_col1:
+            github_src = image_to_data_uri(resolve_asset_path("github-logo.png"))
+            if github_src:
+                st.markdown(
+                    """
+                    <div style="display:flex; flex-direction:column; align-items:center; width:140px; margin:0 auto;">
+                        <img src="{src}" style="width:140px; height:auto; display:block;" />
+                        <div style="margin-top:4px; text-align:center;">
+                            <a href="https://github.com/gokuscraper/goku-feishu-markdown-scraper" target="_blank">本工具开源</a>
+                        </div>
+                    </div>
+                    """.format(src=github_src),
+                    unsafe_allow_html=True,
+                )
+            else:
+                st.image(resolve_asset_path("github-logo.png"), width=140)
+                st.markdown(
+                    "<div style='text-align: center; margin-top: 4px;'><a href='https://github.com/gokuscraper/goku-feishu-markdown-scraper' target='_blank'>本工具开源</a></div>",
+                    unsafe_allow_html=True,
+                )
+        with right_col2:
+            gzh_src = image_to_data_uri(resolve_asset_path("gzh.jpg"))
+            if gzh_src:
+                st.markdown(
+                    """
+                    <div style="display:flex; flex-direction:column; align-items:center; width:140px; margin:0 auto;">
+                        <img src="{src}" style="width:140px; height:auto; display:block;" />
+                        <div style="margin-top:4px; text-align:center;">交流群</div>
+                    </div>
+                    """.format(src=gzh_src),
+                    unsafe_allow_html=True,
+                )
+            else:
+                st.image(resolve_asset_path("gzh.jpg"), width=140)
+                st.markdown("<div style='text-align: center; margin-top: 4px;'>交流群</div>", unsafe_allow_html=True)
+    st.caption("使用方法：填链接，点导出，耐心等，选下载，看分析。")
 
     st.divider()
 
