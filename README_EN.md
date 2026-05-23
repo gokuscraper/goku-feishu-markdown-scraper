@@ -11,7 +11,7 @@ This is a lightweight Streamlit app focused on two scenarios: **Feishu/Lark docu
 
 ## Online Demo
 
-[https://goku-feishu-markdown-downlorder.streamlit.app/](https://goku-feishu-markdown-downlorder.streamlit.app/)
+[https://feishu66.streamlit.app/](https://feishu66.streamlit.app/)
 
 ## Features
 

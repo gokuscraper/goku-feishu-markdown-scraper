@@ -507,7 +507,7 @@ def main():
                     st.info("未识别到有效关键词")
 
     st.divider()
-    st.caption("Powered by 悟空爬虫 | 让数据不仅被看见，更被读懂。")
+    st.caption("Powered by 悟空爬虫 | 让数据采集更加简单，让数据分析更有意义。")
 
 
 if __name__ == "__main__":
